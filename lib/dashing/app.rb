@@ -112,6 +112,19 @@ post '/widgets/:id' do
   end
 end
 
+post '/dataentry' do
+  request.body.rewind
+  body = JSON.parse(request.body.read)
+  auth_token = body.delete("auth_token")
+  if !settings.auth_token || settings.auth_token == auth_token
+    MessageHandler.handle(body)
+    204 # response without entity body
+  else
+    status 401
+    "Invalid API key\n"
+  end
+end
+
 get '/views/:widget?.html' do
   protected!
   tilt_html_engines.each do |suffix, engines|
